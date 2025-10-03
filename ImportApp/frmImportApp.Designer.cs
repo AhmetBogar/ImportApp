@@ -47,6 +47,7 @@
             btnChooseFile = new Button();
             btnImport = new Button();
             txtImportLog = new TextBox();
+            btnCreateTable = new Button();
             groupBoxDb.SuspendLayout();
             SuspendLayout();
             // 
@@ -222,11 +223,23 @@
             txtImportLog.Size = new Size(645, 269);
             txtImportLog.TabIndex = 17;
             // 
+            // btnCreateTable
+            // 
+            btnCreateTable.Location = new Point(335, 301);
+            btnCreateTable.Name = "btnCreateTable";
+            btnCreateTable.Size = new Size(75, 44);
+            btnCreateTable.TabIndex = 18;
+            btnCreateTable.Text = "Tablo Oluştur";
+            btnCreateTable.UseVisualStyleBackColor = true;
+            btnCreateTable.Click += btnCreateTable_Click;
+            // 
             // frmEgeriaImport
             // 
+            AcceptButton = btnDbConnect;
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1163, 376);
+            Controls.Add(btnCreateTable);
             Controls.Add(txtImportLog);
             Controls.Add(btnImport);
             Controls.Add(btnChooseFile);
@@ -236,8 +249,11 @@
             Controls.Add(txtTable);
             Controls.Add(groupBoxDb);
             Controls.Add(progressBarDbConnect);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
             Name = "frmEgeriaImport";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Aktarım Uygulaması";
             groupBoxDb.ResumeLayout(false);
             groupBoxDb.PerformLayout();
@@ -264,5 +280,6 @@
         private Button btnChooseFile;
         private Button btnImport;
         private TextBox txtImportLog;
+        private Button btnCreateTable;
     }
 }

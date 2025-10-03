@@ -10,12 +10,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Globalization;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using ImportApp.Models;
 
 
 namespace ImportApp
 {
     public partial class frmEgeriaImport : Form
     {
+
         public frmEgeriaImport()
         {
             InitializeComponent();
@@ -71,7 +73,7 @@ namespace ImportApp
             public string? BadValue { get; set; }
             public string? Message { get; set; }
             public int RowIndex { get; set; }
-            public string ErrorMessage { get; set; }
+            public string? ErrorMessage { get; set; } 
         }
 
         private Dictionary<string, string> GetDbColumnsWithTypes(string connStr, string tableName)
@@ -169,7 +171,7 @@ namespace ImportApp
         {
             if (errors == null || errors.Count == 0) return;
 
-            string filePath = Path.Combine(desktopPath, $"ImportErrors_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+            string filePath = Path.Combine(desktopPath, $"Aktarim_Notlari_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
 
             using (var p = new ExcelPackage())
             {
@@ -203,7 +205,7 @@ namespace ImportApp
             string connStr = BuildConnectionString();
             string excelPath = txtFilePath.Text;
             string tableName = txtTable.Text.Trim();
-            List<string> excelCols = null;
+            List<string> excelCols = new List<string>();
 
             progressBarDbConnect.Style = ProgressBarStyle.Marquee;
             progressBarDbConnect.MarqueeAnimationSpeed = 30;
@@ -226,8 +228,6 @@ namespace ImportApp
             txtImportLog.Clear();
             AddLog("Excel dosyası okunuyor...");
 
-            /*    var excelData = ReadExcel(excelPath, out List<string> excelCols);
-                AddLog($"Excel kolonları: {string.Join(", ", excelCols)}");*/
 
             var excelData = await Task.Run(() =>
             {
@@ -312,17 +312,23 @@ namespace ImportApp
                                     }
                                     else if (dbColumns[col].ToUpper().Contains("DATE"))
                                     {
-                                        row[col] = DateTime.TryParse(value.ToString(), out var dtVal) ? dtVal : DBNull.Value;
+                                        if (TryParseExcelDate(value, out var dtVal))
+                                            row[col] = dtVal;
+                                        else
+                                            row[col] = DBNull.Value;
                                     }
                                     else if (dbColumns[col].ToUpper().Contains("NUMBER") ||
                                              dbColumns[col].ToUpper().Contains("FLOAT") ||
                                              dbColumns[col].ToUpper().Contains("INTEGER"))
                                     {
-                                        row[col] = decimal.TryParse(value.ToString(), out var decVal) ? decVal : DBNull.Value;
+                                        if (TryParseDecimal(value, out var decVal))
+                                            row[col] = decVal;
+                                        else
+                                            row[col] = DBNull.Value;
                                     }
                                     else
                                     {
-                                        row[col] = value.ToString();
+                                        row[col] = value?.ToString();
                                     }
                                 }
                                 else
@@ -343,6 +349,7 @@ namespace ImportApp
                             }
                         }
 
+
                         if (!rowHasError)
                             dtLocal.Rows.Add(row);
                     }
@@ -358,6 +365,12 @@ namespace ImportApp
                 string summary = $"Aktarım tamamlandı. Başarılı satır: {dt.Rows.Count}, Hatalı satır: {errorRecords.Count}";
                 AddLog(summary);
                 MessageBox.Show(summary, "İşlem Özeti", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                if (errorRecords.Any())
+                {
+                    string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                    WriteErrorLogExcel(desktopPath, errorRecords);
+                }
             }
             catch (Exception ex)
             {
@@ -389,19 +402,17 @@ namespace ImportApp
             string s = rawVal.ToString().Trim();
             if (string.IsNullOrEmpty(s)) return false;
 
-            // Eğer string numeric ise OADate olma ihtimali
             if (double.TryParse(s, NumberStyles.Any, CultureInfo.CurrentCulture, out var dblCurr))
             {
                 try { result = DateTime.FromOADate(dblCurr); return true; }
-                catch { /* geç */ }
+                catch {  }
             }
             if (double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out var dblInv))
             {
                 try { result = DateTime.FromOADate(dblInv); return true; }
-                catch { /* geç */ }
+                catch {  }
             }
 
-            // Yaygın tarih formatlarını dene (ilk tercihler lokal formatlar)
             string[] formats = new[]
             {
         "yyyy-MM-dd", "yyyy-MM-dd HH:mm:ss", "yyyy/MM/dd", "dd.MM.yyyy",
@@ -475,5 +486,84 @@ namespace ImportApp
             if (dlg.ShowDialog() == DialogResult.OK)
                 txtFilePath.Text = dlg.FileName;
         }
+
+        private async void btnCreateTable_Click(object sender, EventArgs e)
+        {
+            progressBarDbConnect.Style = ProgressBarStyle.Marquee;
+            progressBarDbConnect.MarqueeAnimationSpeed = 30;
+            progressBarDbConnect.Visible = true;
+
+            try
+            {
+                if (string.IsNullOrEmpty(txtFilePath.Text) || !File.Exists(txtFilePath.Text))
+                {
+                    MessageBox.Show("Lütfen geçerli bir Excel dosyası seçin!", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var excelColumns = await Task.Run(() => GetExcelColumnDefinitions(txtFilePath.Text));
+
+                if (excelColumns == null || excelColumns.Count == 0)
+                {
+                    MessageBox.Show("Excel’den kolon bilgisi alınamadı!", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string connStr = $"User Id={txtDbUserId.Text};Password={txtDbPassword.Text};Data Source={txtDbAddress.Text};";
+
+                using (var conn = new OracleConnection(connStr))
+                {
+                    await conn.OpenAsync();    
+
+                    progressBarDbConnect.Visible = false;
+
+                    using (frmCreateTable frm = new frmCreateTable(conn, excelColumns))
+                    {
+                        frm.TableName = txtTable.Text.Trim(); 
+                        frm.ShowDialog(); 
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Tablo oluşturma ekranı açılırken hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                progressBarDbConnect.Visible = false;
+            }
+        }
+
+
+        private List<ColumnDefinition> GetExcelColumnDefinitions(string filePath)
+        {
+            var columnDefs = new List<ColumnDefinition>();
+
+            using (var package = new ExcelPackage(new FileInfo(filePath)))
+            {
+                var ws = package.Workbook.Worksheets.FirstOrDefault();
+                if (ws == null || ws.Dimension == null) return columnDefs;
+
+                int colCount = ws.Dimension.End.Column;
+
+                for (int c = 1; c <= colCount; c++)
+                {
+                    string header = ws.Cells[1, c].Text.Trim();
+                    if (string.IsNullOrWhiteSpace(header)) continue;
+
+                    columnDefs.Add(new ColumnDefinition
+                    {
+                        ColumnName = header.ToUpper(),
+                        DataType = "VARCHAR2",
+                        IsRequired = false
+                    });
+                }
+            }
+
+            return columnDefs;
+        }
+
+
     }
 }

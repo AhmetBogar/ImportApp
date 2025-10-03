@@ -15,7 +15,7 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_3A519933F3EF4F9086FCA386873F75D4"
+        "MsmKey" = "8:_3BA1A887F9774D1AA2668EF0DEE530A7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -43,6 +43,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -59,6 +67,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
+            }
         }
     }
     "Deployable"
@@ -90,10 +114,10 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A519933F3EF4F9086FCA386873F75D4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3BA1A887F9774D1AA2668EF0DEE530A7"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\Desktop\\importapp .ico"
-            "TargetName" = "8:importapp .ico"
+            "SourcePath" = "8:..\\ImportApp\\app-icon.ico"
+            "TargetName" = "8:app-icon.ico"
             "Tag" = "8:"
             "Folder" = "8:_4146577550C04629A0B6B9A7A71D9103"
             "Condition" = "8:"
@@ -187,7 +211,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ImportApp"
         "ProductCode" = "8:{F892398B-29D6-4717-AC8E-7A240C1F0C42}"
-        "PackageCode" = "8:{DE269CAE-7A37-4F75-BC67-95686E1E00CA}"
+        "PackageCode" = "8:{AABA1090-312C-42DB-9381-F6AFF18DE4E3}"
         "UpgradeCode" = "8:{5CBCF80F-95B9-4D93-9C24-2B7DD0320CB9}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -309,7 +333,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_08B06B44D4644B92A6447831EC552484"
             {
-            "Name" = "8:EgeriaImporter"
+            "Name" = "8:Egeria Importer"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -318,12 +342,12 @@
             "Target" = "8:_CD5A006275A14EA392387D3CF920CB44"
             "Folder" = "8:_F160C0FE73B34B1B83B311DAA79FA26A"
             "WorkingFolder" = "8:_4146577550C04629A0B6B9A7A71D9103"
-            "Icon" = "8:_3A519933F3EF4F9086FCA386873F75D4"
+            "Icon" = "8:_3BA1A887F9774D1AA2668EF0DEE530A7"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_82D91762C5A74466950B2A275A173B98"
             {
-            "Name" = "8:EgeriaImporter"
+            "Name" = "8:Egeria Importer"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -332,7 +356,7 @@
             "Target" = "8:_CD5A006275A14EA392387D3CF920CB44"
             "Folder" = "8:_9B2CFAEC7D024ECA92EE3086D8593790"
             "WorkingFolder" = "8:_4146577550C04629A0B6B9A7A71D9103"
-            "Icon" = "8:_3A519933F3EF4F9086FCA386873F75D4"
+            "Icon" = "8:_3BA1A887F9774D1AA2668EF0DEE530A7"
             "Feature" = "8:"
             }
         }

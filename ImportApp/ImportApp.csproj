@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="egeria.ico" />
+    <None Include="egeria.ico" />
   </ItemGroup>
 
   <ItemGroup>
